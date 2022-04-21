@@ -1,4 +1,4 @@
-FROM golang:alpine
+FROM golang:1.18-bullseye as build
 
 # Set necessary environmet variables needed for our image
 ENV GO111MODULE=on \
@@ -20,14 +20,9 @@ COPY . .
 # Build the application
 RUN go build -o ssosync .
 
-# Move to /dist directory as the place for resulting binary folder
-WORKDIR /dist
+FROM alpine
 
-# Copy binary from build to main folder
-RUN cp /build/ssosync .
-
-# Export necessary port
-EXPOSE 3000
+COPY --from=build /build/ssosync /usr/local/bin/ssosync
 
 # Command to run when starting the container
-ENTRYPOINT [ "/dist/ssosync" ]
+ENTRYPOINT [ "/usr/local/bin/ssosync" ]
